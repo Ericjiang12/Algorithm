@@ -1,0 +1,66 @@
+Written by 
+          Yifan Jiang-30716845 & Pengcheng Luo-28245650
+
+How to successfully compile:
+	1. Please append "export LANG=C" "export LC_CTYPE=C" these two lines to the end 
+	   of the bash file ".bash_profile" on openlab home/user directory.
+	2. Make sure that LZ.cpp EXPAND.cpp timer.c timer.h, these 4 files are in the same
+	   directory.
+	3. g++ LZ.cpp -o LZ to compile LZ.
+	4. g++ EXPAND.cpp -o EXPAND to compile EXPAND.
+
+Running commands:
+	LZ -N=12 -L=3 -S=4 book1 > book1.compressed
+	EXPAND book1.compressed > book1.recover
+	diff book1 book1.recover
+	LZ kennedy.xls | EXPAND > kenn.recover
+	diff kennedy.xls kenn.recover
+
+
+Data structure used:
+	1. We use a while loop to read file, read 1000 chars at a time and store them to a string. The string is called "content",
+	and we keep moving the window against "content" and delete the processed data on "contents". We keep doing this until the 
+	"content" size is smaller than the window size(which means all data has been processed)
+
+	2. While processing the string, we determine the tuple value to be written to the compressed file. For each value, we transfer
+	it into binary representation with the assigned bits and store them to a vector<bool>. Therefore, when write the file, we could 	simply get 8 bits from the vector<bool> and combine them to a single char and write it to file. This implementation allows us to 	store tuple values within assigned bits and save a lot of memory.
+
+
+Worst-case/ Average-case analysis:
+	1. For worst case, none of the char could be found in the dictionary, thus it takes O(M*N) times to
+	run the program, where M equals to the size of the file and N equals to the window size.
+
+	2. For average case, since we always loop through the window to find the longest best, the average is also O(M*N).
+
+
+Different parameters testing on book1:
+      compressed size/ original size
+1. N=9 L=3 S=1 : 0.6645
+2. N=9 L=3 S=2 : 0.6528
+3. N=9 L=3 S=3 : 0.6630
+4. N=10 L=3 S=1: 0.6002
+5. N=10 L=3 S=2: 0.5971             Time
+6. N=10 L=3 S=3: 0.6024             |
+7. N=11 L=3 S=1: 0.5534             Gradually
+8. N=11 L=3 S=2: 0.5529             |
+9. N=11 L=3 S=3: 0.5558             Increases
+10.N=12 L=3 S=1: 0.5183             |         
+11.N=12 L=3 S=2: 0.5184             When N grows
+12.N=12 L=3 S=3: 0.5200             |
+13.N=13 L=3 S=1: 0.4902             But compression ratio 
+14.N=13 L=3 S=2: 0.490236           |
+15.N=13 L=3 S=3: 0.491066           Is getting better
+16.N=14 L=3 S=1: 0.467408
+17.N=14 L=3 S=2: 0.46739--------------the best parameter found!
+18.N=14 L=3 S=3: 0.467889
+
+And I found that when L=4, ratio gets worse than the cases L=3, N S stay the same
+	on kennedy.xls
+1. N=14 L=3 S=3 : 0.337834
+2. N=14 L=3 S=2 : 0.337698
+3. N=14 L=3 S=1 : 0.337865
+4. N=13 L=3 S=3 : 0.320644
+5. N=13 L=3 S=2 : 0.320503    ----- best
+6. N=12 L=3 S=2 : 0.302332
+7. N=11 L=3 S=2 : 0.405298
+
